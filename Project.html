@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stock Market Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    .search-container {
+      margin-top: 20px;
+    }
+
+    .search-container input[type="text"] {
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    .search-container button {
+      padding: 6px 10px;
+      font-size: 14px;
+      background-color: #555;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    .stock-card {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .stock-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stock-symbol {
+      font-weight: bold;
+    }
+
+    .stock-name {
+      font-size: 14px;
+    }
+
+    .stock-price {
+      font-size: 16px;
+    }
+
+    .delete-button {
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Stock Market Dashboard</h1>
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search by Symbol">
+      <button onclick="searchStocks()">Search</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="watchlist-container"></div>
+  </main>
+
+  <div id="modal-container"></div>
+
+  <script>
+    // Sample stock data
+    const stocks = [
+      { symbol: 'AAPL', name: 'Apple Inc.', price: 150.25 },
+      { symbol: 'GOOG', name: 'Alphabet Inc.', price: 2500.75 },
+      { symbol: 'MSFT', name: 'Microsoft Corporation', price: 300.50 },
+      { symbol: 'AMZN', name: 'Amazon.com, Inc.', price: 3500.00 },
+    ];
+
+    // Watchlist array to store selected stocks
+    let watchlist = [];
+
+    // Function to render stock cards
+    function renderStockCards() {
+      const watchlistContainer = document.getElementById('watchlist-container');
+      watchlistContainer.innerHTML = '';
+
+      watchlist.forEach(stock => {
+        const card = document.createElement('div');
+        card.classList.add('stock-card');
+        card.innerHTML = `
+          <div class="stock-info">
+            <span class="stock-symbol">${stock.symbol}</span>
+            <span class="stock-name">${stock.name}</span>
+            <span class="stock-price">$${stock.price}</span>
+          </div>
+          <button class="delete-button" onclick="deleteStock('${stock.symbol}')">Delete</button>
+        `;
+
+        card.addEventListener('click', () => openModal(stock));
+
+        watchlistContainer.appendChild(card);
+      });
+    }
+
+    // Function to handle adding stocks to watchlist
+    function addToWatchlist(symbol) {
+      const stock = stocks.find(item => item.symbol === symbol);
+      if (stock) {
+        watchlist.push(stock);
+        renderStockCards();
+      }
+    }
+
+    // Function to handle removing stocks from watchlist
+    function deleteStock(symbol) {
+      watchlist = watchlist.filter(stock => stock.symbol !== symbol);
+      renderStockCards();
+    }
+
+    // Function to handle search bar functionality
+    function searchStocks() {
+      const searchTerm = document.getElementById('search-input').value;
+      const results = stocks.filter(stock => stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()));
+      const modalContainer = document.getElementById('modal-container');
+
+      modalContainer.innerHTML = '';
+
+      results.forEach(stock => {
+        const modalCard = document.createElement('div');
+        modalCard.classList.add('stock-card');
+        modalCard.innerHTML = `
+          <div class="stock-info">
+            <span class="stock-symbol">${stock.symbol}</span>
+            <span class="stock-name">${stock.name}</span>
+            <span class="stock-price">$${stock.price}</span>
+          </div>
+          <button onclick="addToWatchlist('${stock.symbol}')">Add to Watchlist</button>
+        `;
+
+        modalContainer.appendChild(modalCard);
+      });
+    }
+
+    // Function to open modal with stock details
+    function openModal(stock) {
+      const modalContainer = document.getElementById('modal-container');
+      modalContainer.innerHTML = '';
+
+      const modalContent = document.createElement('div');
+      modalContent.classList.add('modal-content');
+      modalContent.innerHTML = `
+        <h2>${stock.name}</h2>
+        <p>Symbol: ${stock.symbol}</p>
+        <p>Price: $${stock.price}</p>
+      `;
+
+      const closeModalButton = document.createElement('button');
+      closeModalButton.textContent = 'Close';
+      closeModalButton.classList.add('close-modal');
+      closeModalButton.addEventListener('click', () => closeModal());
+
+      modalContent.appendChild(closeModalButton);
+      modalContainer.appendChild(modalContent);
+
+      modalContainer.style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal() {
+      const modalContainer = document.getElementById('modal-container');
+      modalContainer.style.display = 'none';
+    }
+
+    // Initial rendering of stock cards
+    renderStockCards();
+  </script>
+</body>
+</html>
